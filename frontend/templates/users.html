@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}User Management | KKUL ERP{% endblock %}
+
+{% block body %}
+<div class="page-container">
+    <h1>User Management</h1>
+    <p>Create and manage separate login accounts for your godown team.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="form-section">
+        <h2>Create New User</h2>
+
+        <form method="POST" action="{{ url_for('users.index') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"
+                       maxlength="80" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name"
+                       maxlength="120" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Temporary Password</label>
+                <input type="password" id="password" name="password"
+                       minlength="12" autocomplete="new-password" required>
+                <small>Password must contain at least 12 characters.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="role">User Role</label>
+
+                <select id="role" name="role" required>
+                    <option value="">-- Select Role --</option>
+
+                    {% for role in roles %}
+                        <option value="{{ role }}">
+                            {% if role == "admin" %}
+                                Admin
+                            {% elif role == "godown_incharge" %}
+                                Godown In-charge
+                            {% elif role == "godown_supervisor" %}
+                                Godown Supervisor
+                            {% elif role == "godown" %}
+                                Legacy Godown User
+                            {% elif role == "shift" %}
+                                Shift In-charge
+                            {% elif role == "viewer" %}
+                                Reports Viewer
+                            {% else %}
+                                {{ role }}
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit">Create User</button>
+        </form>
+    </section>
+
+    <section class="table-section">
+        <h2>Existing Users</h2>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.full_name }}</td>
+
+                        <td>
+                            {% if user.role == "admin" %}
+                                Admin
+                            {% elif user.role == "godown_incharge" %}
+                                Godown In-charge
+                            {% elif user.role == "godown_supervisor" %}
+                                Godown Supervisor
+                            {% elif user.role == "godown" %}
+                                Legacy Godown User
+                            {% elif user.role == "shift" %}
+                                Shift In-charge
+                            {% elif user.role == "viewer" %}
+                                Reports Viewer
+                            {% else %}
+                                {{ user.role }}
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if user.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if user.created_at %}
+                                {{ user.created_at.strftime("%d-%m-%Y %H:%M") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

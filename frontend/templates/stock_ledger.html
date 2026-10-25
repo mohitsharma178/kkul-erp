@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Ledger | KKUL ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ledger-hero {
+        padding: 25px;
+        margin-bottom: 22px;
+        border-radius: 16px;
+        color: white;
+        background: linear-gradient(120deg, #10243a, #1c4a64);
+    }
+
+    .ledger-hero h1 {
+        margin: 0;
+        color: white;
+        font-size: 27px;
+    }
+
+    .ledger-hero p {
+        margin: 8px 0 0;
+        color: #d5e5f1;
+    }
+
+    .ledger-card {
+        padding: 22px;
+        margin-bottom: 22px;
+        border: 1px solid #dce5ee;
+        border-radius: 14px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(16, 36, 58, 0.06);
+    }
+
+    .ledger-total {
+        margin-bottom: 20px;
+        padding: 20px;
+        border-left: 5px solid #d99a23;
+        border-radius: 10px;
+        background: #fff9ec;
+    }
+
+    .ledger-total span {
+        display: block;
+        color: #52677d;
+        font-weight: 700;
+    }
+
+    .ledger-total strong {
+        display: block;
+        margin-top: 7px;
+        color: #10243a;
+        font-size: 27px;
+    }
+
+    .ledger-table-wrapper {
+        overflow-x: auto;
+        border: 1px solid #dce5ee;
+        border-radius: 10px;
+    }
+
+    .ledger-table {
+        width: 100%;
+        min-width: 650px;
+        border-collapse: collapse;
+    }
+
+    .ledger-table th {
+        padding: 14px;
+        color: white;
+        background: #102f49;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .ledger-table td {
+        padding: 13px;
+        border-bottom: 1px solid #e8eef4;
+        color: #344b62;
+    }
+
+    .ledger-table tbody tr:nth-child(even) {
+        background: #f6f9fc;
+    }
+
+    .ledger-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        color: #23415a;
+        background: #e8f1fa;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .ledger-empty {
+        padding: 30px;
+        text-align: center;
+        color: #718096;
+    }
+
+    @media (max-width: 600px) {
+        .ledger-card {
+            padding: 14px;
+        }
+
+        .ledger-hero h1 {
+            font-size: 23px;
+        }
+    }
+
+    @media print {
+        .no-print,
+        .erp-header,
+        .navigation-wrap,
+        .erp-footer,
+        .kkul-loader,
+        .kkul-transition {
+            display: none !important;
+        }
+
+        .ledger-card {
+            box-shadow: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="main-content">
+
+    <section class="ledger-hero">
+        <h1>📒 Main Stock Ledger</h1>
+        <p>
+            
+        </p>
+    </section>
+
+    <section class="ledger-total">
+        <span>ALL ACTIVE BAGS — CURRENT STOCK</span>
+        <strong>{{ "{:,}".format(current_stock_total) }} bags</strong>
+    </section>
+
+    <section class="ledger-card">
+        <h2>Bag Brands &amp; Sizes</h2>
+
+        <div class="ledger-table-wrapper">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Sr.</th>
+                        <th>Bag Brand / Type</th>
+                        <th>Size</th>
+                        <th>Current Stock</th>
+                        <th>Status</th>
+                        <th class="no-print">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for bag in bags %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+
+                        <td>
+                            <strong>{{ bag.name }}</strong>
+                        </td>
+
+                        <td>
+                            <span class="ledger-badge">
+                                {{ bag.size_kg }} KG
+                            </span>
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ "{:,}".format(bag.current_stock) }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="ledger-badge">Active</span>
+                        </td>
+
+                        <td class="no-print">
+                            <a
+                                href="{{ url_for('stock_ledger.personal_ledger', bag_id=bag.id) }}"
+                                class="btn"
+                            >
+                                View Ledger →
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="ledger-empty">
+                           
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="no-print" style="margin-top: 18px;">
+            <button class="btn btn-success" onclick="window.print()">
+                🖨️ Print Bag List
+            </button>
+        </div>
+    </section>
+
+</main>
+{% endblock %}

@@ -1,0 +1,229 @@
+
+{% extends "base.html" %}
+{% block title %}Supplier Inward | KKUL ERP{% endblock %}
+
+{% block body %}
+<main class="main-content">
+
+    <header class="page-header">
+        <p class="eyebrow">KAPILA KRISHI UDYOG LIMITED</p>
+        <h1>Supplier Inward</h1>
+        <p class="muted"></p>
+        <a href="{{ url_for('dashboard.index') }}">← Dashboard</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="content-card">
+        <h2>New Supplier Inward</h2>
+
+        <form method="POST"
+              action="{{ url_for('inward.index') }}"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label for="supplier_name">Supplier Name</label>
+            <input
+                id="supplier_name"
+                name="supplier_name"
+                type="text"
+                maxlength="150"
+                required
+            >
+
+            <label for="bill_number">Bill / Invoice Number</label>
+            <input
+                id="bill_number"
+                name="bill_number"
+                type="text"
+                maxlength="100"
+                required
+            >
+
+            <label for="vehicle_number">Vehicle Number</label>
+            <input
+                id="vehicle_number"
+                name="vehicle_number"
+                type="text"
+                maxlength="30"
+                required
+            >
+
+            <label for="inward_date">Inward Date</label>
+            <input
+                id="inward_date"
+                name="inward_date"
+                type="date"
+                required
+            >
+
+            <label for="bill_photo">Bill Photo (mandatory)</label>
+            <input
+                id="bill_photo"
+                name="bill_photo"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.pdf"
+                required
+            >
+
+            <h3>Received Bag Items</h3>
+
+            {% if bags %}
+
+                <div id="bag-items">
+
+                    <div class="bag-item-row">
+
+                        <label>Bag Type</label>
+
+                        <select name="bag_id" required>
+                            <option value="">Select bag type</option>
+
+                            {% for bag in bags %}
+                                <option value="{{ bag.id }}">
+                                    {{ bag.name }} — {{ bag.size_kg }} kg
+                                    (Stock: {{ bag.current_stock }})
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <label>Received Quantity</label>
+
+                        <input
+                            name="quantity"
+                            type="number"
+                            min="1"
+                            step="1"
+                            required
+                            placeholder="Number of bags"
+                        >
+
+                        <button
+                            type="button"
+                            class="remove-item"
+                            onclick="removeBagRow(this)"
+                        >
+                            Remove item
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="add-item"
+                    class="btn"
+                    onclick="addBagRow()"
+                >
+                    + Add Another Bag Type
+                </button>
+
+                <p>.</p>
+
+                <button type="submit" class="btn btn-primary">
+                    Save Supplier Inward
+                </button>
+
+            {% else %}
+
+                <p>
+                  
+                </p>
+
+            {% endif %}
+
+        </form>
+    </section>
+
+    <section class="content-card">
+        <h2>Recent Supplier Inward</h2>
+
+        {% if recent_bills %}
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Date</th>
+                            <th>Supplier</th>
+                            <th>Bill No.</th>
+                            <th>Vehicle</th>
+                            <th>Items</th>
+                            <th>Entered By</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for bill in recent_bills %}
+                            <tr>
+                                <td>{{ bill.reference_no }}</td>
+                                <td>{{ bill.inward_date }}</td>
+                                <td>{{ bill.supplier_name }}</td>
+                                <td>{{ bill.bill_number }}</td>
+                                <td>{{ bill.vehicle_number }}</td>
+
+                                <td>
+                                    {% for item in bill.items %}
+                                        {{ item.bag_type.name }}
+                                        ({{ item.bag_type.size_kg }} kg):
+                                        {{ item.quantity }} bags
+                                        {% if not loop.last %}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <td>{{ bill.user.full_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+
+            <p></p>
+
+        {% endif %}
+    </section>
+
+</main>
+
+<script>
+    function addBagRow() {
+        const container = document.getElementById("bag-items");
+        const firstRow = container.querySelector(".bag-item-row");
+
+        if (!firstRow) {
+            return;
+        }
+
+        const newRow = firstRow.cloneNode(true);
+
+        newRow.querySelector('select[name="bag_id"]').value = "";
+        newRow.querySelector('input[name="quantity"]').value = "";
+
+        container.appendChild(newRow);
+    }
+
+    function removeBagRow(button) {
+        const container = document.getElementById("bag-items");
+        const rows = container.querySelectorAll(".bag-item-row");
+
+        if (rows.length <= 1) {
+            alert("Kam se kam ek bag item row rehni chahiye.");
+            return;
+        }
+
+        button.closest(".bag-item-row").remove();
+    }
+</script>
+
+{% endblock %}

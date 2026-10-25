@@ -1,0 +1,391 @@
+
+{% extends "base.html" %}
+{% block title %}Bag Issue Management | KKUL ERP{% endblock %}
+
+{% block body %}
+<main class="main-content">
+
+    <header class="page-header">
+        <div>
+            <h1>Bag Issue Management</h1>
+            <p></p>
+        </div>
+        <a href="{{ url_for('dashboard.index') }}">← Dashboard</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- ================================================== -->
+    <!-- FORM 1: ISSUE AGAINST PENDING REQUEST              -->
+    <!-- ================================================== -->
+
+    <section class="content-card">
+        <h2>Issue Against Supervisor Request</h2>
+
+        {% if pending_requests %}
+
+        <form method="POST"
+              action="{{ url_for('issues.index') }}"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="issue_mode" value="manual">
+            <input type="hidden" name="issue_mode" value="request">
+
+            <label for="request_id">Pending Supervisor Request</label>
+
+
+            <select id="request_id" name="request_id" required>
+                <option value="">Select pending request</option>
+
+                {% for req in pending_requests %}
+                <option
+                    value="{{ req.id }}"
+                    data-plant="{{ req.plant.name }}"
+                    data-supervisor="{{ req.supervisor.name }}"
+                    data-bag="{{ req.bag_type.name }} — {{ req.bag_type.size_kg }} kg"
+                    data-quantity="{{ req.requested_quantity }}"
+                    data-date="{{ req.request_date.strftime('%d-%m-%Y') }}"
+                >
+                    {{ req.reference_no }} |
+                    {{ req.plant.name }} |
+                    {{ req.bag_type.name }} |
+                    Qty: {{ req.requested_quantity }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <div id="request-details" class="content-card" hidden>
+                <h3>Selected Request Details</h3>
+
+                <p>
+                    <strong>Plant:</strong>
+                    <span id="detail-plant"></span>
+                </p>
+
+                <p>
+                    <strong>Supervisor:</strong>
+                    <span id="detail-supervisor"></span>
+                </p>
+
+                <p>
+                    <strong>Bag Type:</strong>
+                    <span id="detail-bag"></span>
+                </p>
+
+                <p>
+                    <strong>Requested Quantity:</strong>
+                    <span id="detail-quantity"></span>
+                </p>
+
+                <p>
+                    <strong>Request Date:</strong>
+                    <span id="detail-date"></span>
+                </p>
+
+                <p>
+                </p>
+            </div>
+
+            <label for="request_shift">Godown Shift</label>
+
+            <select id="request_shift" name="shift" required>
+                <option value="">Select shift</option>
+                <option value="Shift 1">Shift 1</option>
+                <option value="Shift 2">Shift 2</option>
+            </select>
+
+            <label for="request_parchi">
+                Supervisor Parchi Photo (Optional)
+            </label>
+
+            <input
+                id="request_parchi"
+                name="parchi_photo"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+            >
+
+            <button type="submit" class="btn btn-primary">
+                Issue Full Request
+            </button>
+
+        </form>
+
+        {% else %}
+
+        <p></p>
+        <p></p>
+
+        {% endif %}
+    </section>
+
+
+    <!-- ================================================== -->
+    <!-- FORM 2: MANUAL BAG ISSUE                           -->
+    <!-- ================================================== -->
+
+    <section class="content-card">
+
+        <h2>Manual Bag Issue</h2>
+
+        <p>
+            
+        </p>
+
+        <form method="POST"
+              action="{{ url_for('issues.index') }}"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="issue_mode" value="manual">
+
+            <!-- Plant -->
+
+            <label for="manual_plant">Plant</label>
+
+            <select id="manual_plant" name="plant_id" required>
+                <option value="">Select Plant</option>
+
+                {% for plant in plants %}
+                <option value="{{ plant.id }}">
+                    {{ plant.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+
+            <!-- Supervisor -->
+
+            <label for="manual_supervisor">Supervisor</label>
+
+            <select id="manual_supervisor" name="supervisor_id" required>
+                <option value="">Select Supervisor</option>
+
+                {% for supervisor in supervisors %}
+                <option
+                    value="{{ supervisor.id }}"
+                    data-plant="{{ supervisor.plant_id }}"
+                >
+                    {{ supervisor.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+
+            <!-- Bag Type -->
+
+            <label for="manual_bag">Bag Type / Size</label>
+
+            <select id="manual_bag" name="bag_type_id" required>
+                <option value="">Select Bag Type</option>
+
+                {% for bag in bag_types %}
+                <option value="{{ bag.id }}">
+                    {{ bag.name }} — {{ bag.size_kg }} kg
+                    (Stock: {{ bag.current_stock }})
+                </option>
+                {% endfor %}
+            </select>
+
+
+            <!-- Quantity -->
+
+            <label for="manual_quantity">Quantity</label>
+
+            <input
+                id="manual_quantity"
+                type="number"
+                name="quantity"
+                min="1"
+                step="1"
+                required
+            >
+
+
+            <!-- Shift -->
+
+            <label for="manual_shift">Godown Shift</label>
+
+            <select id="manual_shift" name="shift" required>
+                <option value="">Select Shift</option>
+                <option value="Shift 1">Shift 1</option>
+                <option value="Shift 2">Shift 2</option>
+            </select>
+
+
+            <!-- Optional Photo -->
+
+            <label for="manual_parchi">
+                Supervisor Parchi Photo (Optional)
+            </label>
+
+            <input
+                id="manual_parchi"
+                type="file"
+                name="parchi_photo"
+                accept=".jpg,.jpeg,.png,.webp"
+            >
+
+            <button type="submit" class="btn btn-primary">
+                Issue Bags Manually
+            </button>
+
+        </form>
+    </section>
+
+
+    <!-- ================================================== -->
+    <!-- RECENT BAG ISSUES                                  -->
+    <!-- ================================================== -->
+
+    <section class="content-card">
+
+        <h2>Recent Bag Issues</h2>
+
+        {% if recent_issues %}
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue Reference</th>
+                        <th>Request Reference</th>
+                        <th>Date</th>
+                        <th>Plant</th>
+                        <th>Supervisor</th>
+                        <th>Bag Type</th>
+                        <th>Quantity</th>
+                        <th>Shift</th>
+                        <th>Issued By</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for issue in recent_issues %}
+
+                    <tr>
+                        <td>{{ issue.reference_no }}</td>
+
+                        <td>
+                            {% if issue.bag_request %}
+                                {{ issue.bag_request.reference_no }}
+                            {% else %}
+                                Manual Issue
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ issue.issue_date.strftime('%d-%m-%Y') }}
+                        </td>
+
+                        <td>{{ issue.plant.name }}</td>
+
+                        <td>{{ issue.supervisor.name }}</td>
+
+                        <td>
+                            {{ issue.bag_type.name }} —
+                            {{ issue.bag_type.size_kg }} kg
+                        </td>
+
+                        <td>{{ issue.quantity }}</td>
+
+                        <td>
+                            {{ issue.shift or 'Unknown (old record)' }}
+                        </td>
+
+                        <td>{{ issue.user.full_name }}</td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+
+        <p></p>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<!-- ====================================================== -->
+<!-- JAVASCRIPT                                             -->
+<!-- ====================================================== -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Filter supervisors according to selected plant.
+    const plantSelect = document.getElementById("manual_plant");
+    const supervisorSelect = document.getElementById("manual_supervisor");
+
+    function filterSupervisors() {
+
+        const plantId = plantSelect.value;
+
+        supervisorSelect.value = "";
+
+        Array.from(supervisorSelect.options).forEach(function (option) {
+
+            if (!option.value) {
+                option.hidden = false;
+                return;
+            }
+
+            option.hidden = option.dataset.plant !== plantId;
+        });
+    }
+
+    plantSelect.addEventListener("change", filterSupervisors);
+
+    filterSupervisors();
+
+
+    // Display details of selected pending request.
+    const requestSelect = document.getElementById("request_id");
+    const details = document.getElementById("request-details");
+
+    if (requestSelect && details) {
+
+        requestSelect.addEventListener("change", function () {
+
+            const selected =
+                requestSelect.options[requestSelect.selectedIndex];
+
+            if (!requestSelect.value) {
+                details.hidden = true;
+                return;
+            }
+
+            document.getElementById("detail-plant").textContent =
+                selected.dataset.plant || "";
+
+            document.getElementById("detail-supervisor").textContent =
+                selected.dataset.supervisor || "";
+
+            document.getElementById("detail-bag").textContent =
+                selected.dataset.bag || "";
+
+            document.getElementById("detail-quantity").textContent =
+                selected.dataset.quantity || "";
+
+            document.getElementById("detail-date").textContent =
+                selected.dataset.date || "";
+
+            details.hidden = false;
+        });
+    }
+
+});
+</script>
+
+{% endblock %}

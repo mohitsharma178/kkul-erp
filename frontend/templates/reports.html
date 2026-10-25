@@ -1,0 +1,712 @@
+
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics | KKUL ERP{% endblock %}
+
+{% block body %}
+<style>
+    .report-charts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+        margin: 26px 0;
+    }
+
+    .report-chart-card {
+        min-width: 0;
+        padding: 24px;
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .report-chart-card h2 {
+        margin: 0 0 6px;
+        font-size: 19px;
+    }
+
+    .report-chart-card p {
+        margin: 0 0 18px;
+        color: var(--muted-text, #64748b);
+        font-size: 13px;
+    }
+
+    .report-chart-container {
+        position: relative;
+        width: 100%;
+        height: 310px;
+    }
+
+    @media (max-width: 760px) {
+        .report-charts {
+            grid-template-columns: 1fr;
+        }
+
+        .report-chart-card {
+            padding: 16px;
+        }
+
+        .report-chart-container {
+            height: 280px;
+        }
+    }
+</style>
+<div class="page-container">
+    <h1>Reports & Analytics</h1>
+    <p>Inward, plant issues, current stock and stock movement complete reports.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="form-section">
+        <h2>Report Filters</h2>
+
+        <div class="quick-filters">
+            <a href="{{ url_for('reports.index', period='daily') }}">Today</a>
+            <a href="{{ url_for('reports.index', period='weekly') }}">This Week</a>
+            <a href="{{ url_for('reports.index', period='monthly') }}">This Month</a>
+        </div>
+
+        <form method="GET" action="{{ url_for('reports.index') }}">
+            <label for="start_date">From Date</label>
+            <input type="date" id="start_date" name="start_date"
+                   value="{{ start_date.isoformat() }}" required>
+
+            <label for="end_date">To Date</label>
+            <input type="date" id="end_date" name="end_date"
+                   value="{{ end_date.isoformat() }}" required>
+
+            <label for="plant_id">Plant (optional)</label>
+            <select id="plant_id" name="plant_id">
+                <option value="">All Plants</option>
+                {% for plant in plants %}
+                    <option value="{{ plant.id }}"
+                        {% if selected_plant_id == plant.id %}selected{% endif %}>
+                        {{ plant.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="supervisor_id">Supervisor (optional)</label>
+            <select id="supervisor_id" name="supervisor_id">
+                <option value="">All Supervisors</option>
+                {% for supervisor in supervisors %}
+                    <option value="{{ supervisor.id }}"
+                        {% if selected_supervisor_id == supervisor.id %}selected{% endif %}>
+                        {{ supervisor.name }} — {{ supervisor.plant.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Generate Report</button>
+        </form>
+    </section>
+
+    <section class="table-section">
+        <h2>Download Reports (CSV)</h2>
+        <p></p>
+
+        <div class="quick-filters">
+            <a href="{{ url_for('reports.inward_export_csv',
+                start_date=start_date.isoformat(),
+                end_date=end_date.isoformat()) }}">
+                Download Supplier Inward CSV
+            </a>
+
+            <a href="{{ url_for('reports.export_csv',
+                start_date=start_date.isoformat(),
+                end_date=end_date.isoformat(),
+                plant_id=selected_plant_id or '',
+                supervisor_id=selected_supervisor_id or '') }}">
+                Download Plant Issue CSV
+            </a>
+
+            <a href="{{ url_for('reports.stock_export_csv') }}">
+                Download Current Stock CSV
+            </a>
+
+            <a href="{{ url_for('reports.movement_export_csv',
+                start_date=start_date.isoformat(),
+                end_date=end_date.isoformat()) }}">
+                Download Stock Movement CSV
+            </a>
+        </div>
+    </section>
+    
+    <!-- Rolling Last 24 Hours: Brand-wise Issue Register -->
+    <section class="table-section">
+        <h2>Last 24 Hours — Brand-wise Issue Register</h2>
+        <p>
+        </p>
+
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <h3>Total Bags Issued (Last 24 Hours)</h3>
+                <p>{{ last_24_hours_total|default(0) }}</p>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Brand / Size Records</h3>
+                <p>{{ brand_issue_summary|default([])|length }}</p>
+            </div>
+        </div>
+
+        {% if brand_issue_summary %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Brand / Bag Type</th>
+                            <th>Size (kg)</th>
+                            <th>Plant-wise Breakdown</th>
+                            <th>Total Bags</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in brand_issue_summary %}
+                            <tr>
+                                <td><strong>{{ item.brand_name }}</strong></td>
+                                <td>{{ item.size_kg }}</td>
+                                <td>
+                                    {% if item.plant_totals %}
+                                        <ul style="margin: 0; padding-left: 20px;">
+                                            {% for plant in item.plant_totals %}
+                                                <li>
+                                                    {{ plant.plant_name }}:
+                                                    <strong>
+                                                        {{ "{:,}".format(plant.quantity) }}
+                                                    </strong>
+                                                    bags
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>
+                                        {{ "{:,}".format(item.grand_total) }}
+                                    </strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3">Grand Total — All Brands / Sizes</th>
+                            <th>
+                                {{ "{:,}".format(last_24_hours_total|default(0)) }}
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        {% else %}
+            <p>
+            </p>
+        {% endif %}
+    </section>
+
+<section class="report-charts">
+
+    <div class="report-chart-card">
+        <h2>Plant-wise Bag Issues</h2>
+        <p></p>
+
+        <div class="report-chart-container">
+            <canvas id="plantIssueChart"
+                    role="img"
+                    aria-label="Plant-wise bag issue quantities"></canvas>
+        </div>
+    </div>
+
+    <div class="report-chart-card">
+        <h2>Shift-wise Bag Issues</h2>
+        <p></p>
+
+        <div class="report-chart-container">
+            <canvas id="shiftIssueChart"
+                    role="img"
+                    aria-label="Shift-wise bag issue quantities"></canvas>
+        </div>
+    </div>
+
+</section>
+    <section class="dashboard-cards">
+        <div class="dashboard-card">
+            <h3>Total Bags Issued</h3>
+            <p>{{ total_bags }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Total Issue Transactions</h3>
+            <p>{{ total_transactions }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Bag Types</h3>
+            <p>{{ stock_items|length }}</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Inward Entries</h3>
+            <p>{{ inward_items|length }}</p>
+        </div>
+    </section>
+
+    <section class="table-section">
+        <h2>Supplier Inward Report</h2>
+        <p></p>
+
+        {% if inward_items %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Inward Reference</th>
+                            <th>Date</th>
+                            <th>Supplier</th>
+                            <th>Bill Number</th>
+                            <th>Vehicle Number</th>
+                            <th>Bag Type</th>
+                            <th>Size (kg)</th>
+                            <th>Quantity</th>
+                            <th>Bill Photo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill, item, bag in inward_items %}
+                            <tr>
+                                <td>{{ bill.reference_no }}</td>
+                                <td>
+                                    {{ bill.inward_date.strftime('%d-%m-%Y')
+                                       if bill.inward_date else '-' }}
+                                </td>
+                                <td>{{ bill.supplier_name }}</td>
+                                <td>{{ bill.bill_number }}</td>
+                                <td>{{ bill.vehicle_number }}</td>
+                                <td>{{ bag.name }}</td>
+                                <td>{{ bag.size_kg }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ 'Available' if bill.bill_photo else 'Not available' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Current Stock Report</h2>
+        <p></p>
+
+        {% if stock_items %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bag Type / Brand</th>
+                            <th>Size (kg)</th>
+                            <th>Current Stock</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bag in stock_items %}
+                            <tr>
+                                <td>{{ bag.name }}</td>
+                                <td>{{ bag.size_kg }}</td>
+                                <td>{{ bag.current_stock }}</td>
+                                <td>{{ 'Active' if bag.is_active else 'Inactive' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Stock Movement History</h2>
+        <p>Selected dates ke inward, issue aur stock adjustment movements.</p>
+
+        {% if movement_items %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Movement Type</th>
+                            <th>Bag Type</th>
+                            <th>Size (kg)</th>
+                            <th>Previous Stock</th>
+                            <th>New Stock</th>
+                            <th>Change</th>
+                            <th>Reason</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement, bag, user in movement_items %}
+                            <tr>
+                                <td>
+                                    {{ movement.created_at.strftime('%d-%m-%Y %H:%M:%S')
+                                       if movement.created_at else '-' }}
+                                </td>
+                                <td>{{ movement.movement_type }}</td>
+                                <td>{{ bag.name }}</td>
+                                <td>{{ bag.size_kg }}</td>
+                                <td>{{ movement.previous_qty }}</td>
+                                <td>{{ movement.new_qty }}</td>
+                                <td>{{ movement.change_qty }}</td>
+                                <td>{{ movement.reason or '-' }}</td>
+                                <td>
+                                    {% if user %}
+                                        {{ user.full_name or user.username }}
+                                    {% else %}
+                                        Unknown
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Shift-wise Summary</h2>
+
+        {% if shift_summary %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Godown Shift</th>
+                            <th>Total Bags Issued</th>
+                            <th>Total Transactions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in shift_summary %}
+                            <tr>
+                                <td>{{ item.shift or 'Unknown (old record)' }}</td>
+                                <td>{{ item.total_quantity }}</td>
+                                <td>{{ item.total_transactions }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Godown In-charge-wise Summary</h2>
+
+        {% if incharge_summary %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Godown In-charge</th>
+                            <th>Total Bags Issued</th>
+                            <th>Total Transactions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in incharge_summary %}
+                            <tr>
+                                <td>{{ item.incharge_name or 'Unknown' }}</td>
+                                <td>{{ item.total_quantity }}</td>
+                                <td>{{ item.total_transactions }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Plant-wise Summary</h2>
+
+        {% if plant_summary %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plant</th>
+                            <th>Total Bags Issued</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in plant_summary %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.total_quantity }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Supervisor-wise Summary</h2>
+
+<!-- SUPERVISOR-WISE BRAND ANALYSIS -->
+<section class="report-section">
+    <h2>Supervisor-wise Brand Analysis</h2>
+    
+<a href="{{ url_for('reports.supervisor_brand_export',
+    start_date=request.args.get('start_date', ''),
+    end_date=request.args.get('end_date', ''),
+    period=request.args.get('period', ''),
+    plant_id=request.args.get('plant_id', ''),
+    supervisor_id=request.args.get('supervisor_id', '')) }}">
+    Download Supervisor Brand CSV
+</a>
+
+    <p>
+        Selected date range mein har supervisor ne kis brand aur size
+        ke kitne bags issue karwaye, uska detailed analysis.
+    </p>
+
+    {% if supervisor_brand_summary %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Supervisor</th>
+                    <th>Plant</th>
+                    <th>Bag Brand / Name</th>
+                    <th>Size</th>
+                    <th>Total Issued</th>
+                    <th>Transactions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in supervisor_brand_summary %}
+                <tr>
+                    <td>{{ item.supervisor_name }}</td>
+                    <td>{{ item.plant_name }}</td>
+                    <td>{{ item.brand_name }}</td>
+                    <td>{{ item.size_kg }} kg</td>
+                    <td>
+                        {{ "{:,}".format(item.total_issued or 0) }}
+                    </td>
+                    <td>{{ item.transactions or 0 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>
+        Selected date range ke liye koi supervisor-wise brand issue
+        record nahi mila.
+    </p>
+    {% endif %}
+</section>
+
+        {% if supervisor_summary %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Supervisor</th>
+                            <th>Plant</th>
+                            <th>Total Bags Issued</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in supervisor_summary %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.plant_name }}</td>
+                                <td>{{ item.total_quantity }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+
+    <section class="table-section">
+        <h2>Detailed Plant Issue Records</h2>
+
+        {% if issues %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No.</th>
+                            <th>Date</th>
+                            <th>Shift</th>
+                            <th>Plant</th>
+                            <th>Supervisor</th>
+                            <th>Bag Type</th>
+                            <th>Size (kg)</th>
+                            <th>Quantity</th>
+                            <th>Godown In-charge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in issues %}
+                            <tr>
+                                <td>{{ issue.reference_no }}</td>
+                                <td>
+                                    {{ issue.issue_date.strftime('%d-%m-%Y')
+                                       if issue.issue_date else '-' }}
+                                </td>
+                                <td>{{ issue.shift or 'Unknown (old record)' }}</td>
+                                <td>{{ issue.plant.name if issue.plant else 'Unknown' }}</td>
+                                <td>{{ issue.supervisor.name if issue.supervisor else 'Unknown' }}</td>
+                                <td>{{ issue.bag_type.name if issue.bag_type else 'Unknown' }}</td>
+                                <td>{{ issue.bag_type.size_kg if issue.bag_type else '-' }}</td>
+                                <td>{{ issue.quantity }}</td>
+                                <td>
+                                    {% if issue.user %}
+                                        {{ issue.user.full_name or issue.user.username or 'Unknown' }}
+                                    {% else %}
+                                        Unknown
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+    </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js load nahi hua. Internet connection check karein.");
+        return;
+    }
+
+    const plantLabels = JSON.parse('{{ chart_plant_labels | tojson | safe }}');
+    const plantValues = JSON.parse('{{ chart_plant_values | tojson | safe }}');
+
+    const shiftLabels = JSON.parse('{{ chart_shift_labels | tojson | safe }}');
+    const shiftValues = JSON.parse('{{ chart_shift_values | tojson | safe }}');
+
+    const plantCanvas = document.getElementById("plantIssueChart");
+    const shiftCanvas = document.getElementById("shiftIssueChart");
+
+    if (plantCanvas && plantLabels.length > 0) {
+        new Chart(plantCanvas, {
+            type: "bar",
+            data: {
+                labels: plantLabels,
+                datasets: [{
+                    label: "Bags Issued",
+                    data: plantValues,
+                    backgroundColor: "rgba(37, 99, 235, 0.78)",
+                    borderColor: "#2563eb",
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 45
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return "Bags Issued: " +
+                                    Number(context.raw).toLocaleString("en-IN");
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            callback: function (value) {
+                                return Number(value).toLocaleString("en-IN");
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else if (plantCanvas) {
+        plantCanvas.parentElement.innerHTML =
+            "<p>No plant issue data available for the selected dates.</p>";
+    }
+
+    if (shiftCanvas && shiftLabels.length > 0) {
+        new Chart(shiftCanvas, {
+            type: "doughnut",
+            data: {
+                labels: shiftLabels,
+                datasets: [{
+                    data: shiftValues,
+                    backgroundColor: ["#2563eb", "#10b981", "#f59e0b"],
+                    borderWidth: 2,
+                    borderColor: "#ffffff"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.label + ": " +
+                                    Number(context.raw).toLocaleString("en-IN") +
+                                    " bags";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else if (shiftCanvas) {
+        shiftCanvas.parentElement.innerHTML =
+            "<p>No shift issue data available for the selected dates.</p>";
+    }
+});
+</script>
+{% endblock %}

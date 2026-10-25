@@ -1,0 +1,132 @@
+
+{% extends "base.html" %}
+
+{% block title %}Daily Issue Limits | KKUL ERP{% endblock %}
+
+{% block body %}
+<div class="page-container">
+    <h1>Daily Issue Limit Management</h1>
+    <p>LIMIT</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="form-section">
+        <h2>Set / Update Limit</h2>
+
+        <form method="POST" action="{{ url_for('daily_limits.index') }}">
+           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="plant_id">Plant</label>
+            <select id="plant_id" name="plant_id" required>
+                <option value="">-- SELECT PLANT --</option>
+                {% for plant in plants %}
+                    {% if plant.is_active %}
+                        <option value="{{ plant.id }}">{{ plant.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <label for="bag_type_id">Bag Type</label>
+            <select id="bag_type_id" name="bag_type_id" required>
+                <option value="">-- SELECT BAG TYPE --</option>
+                {% for bag in bags %}
+                    {% if bag.is_active %}
+                        <option value="{{ bag.id }}">{{ bag.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <label for="daily_limit">Daily Limit (bags)</label>
+            <input
+                type="number"
+                id="daily_limit"
+                name="daily_limit"
+                min="1"
+                step="1"
+                required
+                placeholder="Example: 500"
+            >
+
+            <button type="submit">Save / Update Limit</button>
+        </form>
+    </section>
+
+    <section class="table-section">
+        <h2>Configured Daily Limits</h2>
+
+        {% if limits %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plant</th>
+                            <th>Bag Type</th>
+                            <th>Daily Limit</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                   
+<tbody>
+    {% for item in limits %}
+        <tr>
+            <td>{{ item.plant.name }}</td>
+            <td>
+                {{ item.bag_type.name }}
+                ({{ item.bag_type.size_kg }} kg)
+            </td>
+            <td>{{ item.daily_limit }}</td>
+            <td>
+                <button
+                    type="button"
+                    class="edit-limit-btn"
+                    data-plant-id="{{ item.plant_id }}"
+                    data-bag-type-id="{{ item.bag_type_id }}"
+                    data-daily-limit="{{ item.daily_limit }}"
+                >
+                    Edit
+                </button>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+
+                </table>
+            </div>
+        {% else %}
+            <p>DAILY LIMIT NOT CONFIGURED.</p>
+        {% endif %}
+    </section>
+</div>
+
+
+<script>
+function editLimit(plantId, bagTypeId, dailyLimit) {
+    document.getElementById("plant_id").value = plantId;
+    document.getElementById("bag_type_id").value = bagTypeId;
+    document.getElementById("daily_limit").value = dailyLimit;
+
+    document.getElementById("plant_id").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+    document.getElementById("daily_limit").focus();
+}
+
+document.querySelectorAll(".edit-limit-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        editLimit(
+            Number(this.dataset.plantId),
+            Number(this.dataset.bagTypeId),
+            Number(this.dataset.dailyLimit)
+        );
+    });
+});
+</script>
+
+{% endblock %}

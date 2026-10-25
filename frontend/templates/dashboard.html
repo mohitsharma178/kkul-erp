@@ -1,0 +1,1219 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | KKUL ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-page {
+        --dash-navy: #10213b;
+        --dash-blue: #2563eb;
+        --dash-muted: #64748b;
+        --dash-border: #e2e8f0;
+        color: #172033;
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 28px;
+    }
+
+    .dashboard-page * {
+        box-sizing: border-box;
+    }
+
+    .dash-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .dash-heading h1 {
+        margin: 0 0 7px;
+        color: var(--dash-navy);
+        font-size: clamp(25px, 3vw, 34px);
+        font-weight: 800;
+        letter-spacing: -0.8px;
+    }
+
+    .dash-heading p {
+        margin: 0;
+        color: var(--dash-muted);
+        font-size: 14px;
+    }
+
+    .dash-date {
+        padding: 10px 14px;
+        border: 1px solid var(--dash-border);
+        border-radius: 12px;
+        background: #fff;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .dash-welcome {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 24px;
+        padding: 27px;
+        border-radius: 20px;
+        color: #fff;
+        background: linear-gradient(120deg, #10213b, #1d4ed8);
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.13);
+    }
+
+    .dash-welcome::after {
+        content: "";
+        position: absolute;
+        width: 210px;
+        height: 210px;
+        right: -50px;
+        top: -100px;
+        border: 35px solid rgba(255,255,255,0.08);
+        border-radius: 50%;
+    }
+
+    .dash-welcome h2 {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 8px;
+        font-size: 23px;
+        font-weight: 750;
+    }
+
+    .dash-welcome p {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #dbeafe;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .dash-section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 28px 0 15px;
+    }
+
+    .dash-section-title h2 {
+        margin: 0;
+        color: var(--dash-navy);
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .dash-section-title p {
+        margin: 4px 0 0;
+        color: var(--dash-muted);
+        font-size: 12px;
+    }
+
+    .dash-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .dash-card {
+        min-width: 0;
+        padding: 20px;
+        border: 1px solid var(--dash-border);
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: 0 5px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .metric-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 19px;
+    }
+
+    .metric-label {
+        color: var(--dash-muted);
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .metric-icon {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 13px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 20px;
+    }
+
+    .metric-value {
+        overflow-wrap: anywhere;
+        color: var(--dash-navy);
+        font-size: clamp(25px, 3vw, 33px);
+        font-weight: 850;
+        letter-spacing: -0.8px;
+        line-height: 1.2;
+    }
+
+    .metric-note {
+        margin-top: 8px;
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .dash-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .dash-panel {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--dash-border);
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: 0 5px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .dash-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 19px 20px;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .dash-panel-header h3 {
+        margin: 0;
+        color: var(--dash-navy);
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .dash-panel-header p {
+        margin: 5px 0 0;
+        color: var(--dash-muted);
+        font-size: 12px;
+    }
+
+    .dash-count {
+        padding: 6px 10px;
+        border-radius: 9px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .dash-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .dash-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .dash-table th {
+        padding: 12px 16px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+        white-space: nowrap;
+    }
+
+    .dash-table td {
+        padding: 14px 16px;
+        border-top: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .dash-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .primary-cell {
+        color: var(--dash-navy);
+        font-weight: 750;
+    }
+
+    .secondary-cell {
+        display: block;
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .status-out {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status-low {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-inward {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-issue {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-movement {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .empty-state {
+        padding: 30px 20px;
+        color: #64748b;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .empty-icon {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 25px;
+    }
+
+    .dash-actions {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 13px;
+    }
+
+    .dash-action {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 0;
+        padding: 16px;
+        border: 1px solid var(--dash-border);
+        border-radius: 15px;
+        background: #fff;
+        color: inherit;
+        text-decoration: none;
+        transition: transform .18s ease, box-shadow .18s ease,
+                    border-color .18s ease;
+    }
+
+    .dash-action:hover {
+        transform: translateY(-2px);
+        border-color: #93c5fd;
+        box-shadow: 0 8px 22px rgba(37, 99, 235, .08);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .action-icon {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #eff6ff;
+        font-size: 19px;
+    }
+
+    .action-text {
+        min-width: 0;
+    }
+
+    .action-text strong {
+        display: block;
+        color: var(--dash-navy);
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .action-text span {
+        display: block;
+        margin-top: 3px;
+        color: #94a3b8;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .dash-footer {
+        padding: 24px 0 4px;
+        color: #94a3b8;
+        font-size: 11px;
+        text-align: center;
+    }
+
+/* Enterprise Analytics */
+.dash-analytics {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    margin: 26px 0;
+}
+
+.dash-chart-panel {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--dash-border);
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.035);
+}
+
+.dash-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.dash-chart-header h3 {
+    margin: 0;
+    color: var(--dash-navy);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.dash-chart-header p {
+    margin: 5px 0 0;
+    color: var(--dash-muted);
+    font-size: 12px;
+}
+
+.dash-chart-badge {
+    padding: 7px 11px;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.dash-chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+@media (max-width: 600px) {
+    .dash-chart-panel {
+        padding: 15px;
+    }
+
+    .dash-chart-container {
+        height: 250px;
+    }
+}
+
+
+    @media (max-width: 1100px) {
+        .dash-metrics {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .dash-actions {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .dash-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-page {
+            padding: 16px;
+        }
+
+        .dash-welcome {
+            padding: 21px;
+        }
+
+        .dash-metrics {
+            gap: 10px;
+        }
+
+        .dash-card {
+            padding: 14px;
+        }
+
+        .metric-top {
+            align-items: flex-start;
+            flex-direction: column-reverse;
+            margin-bottom: 12px;
+        }
+
+        .metric-icon {
+            width: 35px;
+            height: 35px;
+            font-size: 17px;
+        }
+
+        .dash-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .dash-panel-header {
+            padding: 16px;
+        }
+    }
+    
+/* =========================================
+   INDUSTRIAL LUXE — DASHBOARD THEME
+   Charcoal / Amber / Warm White
+========================================= */
+
+.dashboard-page {
+    --dash-navy: #f4f1e8;
+    --dash-blue: #f2a900;
+    --dash-muted: #a7adb2;
+    --dash-border: #3a3e42;
+
+    color: #f4f1e8;
+    background: transparent;
+}
+
+.dash-heading h1,
+.dash-section-title h2 {
+    color: #f7f4ec;
+}
+
+.dash-heading p,
+.dash-section-title p {
+    color: #a7adb2;
+}
+
+.dash-date {
+    color: #f3d58b;
+    background: #222528;
+    border-color: #484139;
+}
+
+.dash-welcome {
+    background:
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(242, 169, 0, 0.18),
+            transparent 38%
+        ),
+        linear-gradient(120deg, #242729, #17191b);
+    border: 1px solid #494035;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
+}
+
+.dash-welcome::after {
+    border-color: rgba(242, 169, 0, 0.12);
+}
+
+.dash-welcome h2 {
+    color: #fffaf0;
+}
+
+.dash-welcome p {
+    color: #c3c5c5;
+}
+
+.dash-card,
+.dash-panel,
+.dash-chart-panel {
+    color: #f4f1e8;
+    background: linear-gradient(145deg, #25282b, #1d2022);
+    border-color: #3b3f42;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.16);
+}
+
+.dash-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.dash-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 18px;
+    right: 18px;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #d99500,
+        #ffd36a,
+        transparent
+    );
+    opacity: 0.8;
+}
+
+.dash-card:hover {
+    transform: translateY(-3px);
+    border-color: #77602d;
+}
+
+.metric-label {
+    color: #b8bdc0;
+}
+
+.metric-icon {
+    color: #f4bd3f;
+    background: rgba(242, 169, 0, 0.12);
+    border: 1px solid rgba(242, 169, 0, 0.18);
+}
+
+.metric-value {
+    color: #fff7e6;
+}
+
+.metric-note {
+    color: #92999e;
+}
+
+.dash-panel-header {
+    background: rgba(12, 14, 15, 0.16);
+    border-bottom-color: #3a3e41;
+}
+
+.dash-panel-header h3,
+.dash-chart-header h3 {
+    color: #f6f1e5;
+}
+
+.dash-panel-header p,
+.dash-chart-header p {
+    color: #a6adb1;
+}
+
+.dash-count,
+.dash-chart-badge {
+    color: #ffd36a;
+    background: rgba(242, 169, 0, 0.12);
+    border: 1px solid rgba(242, 169, 0, 0.2);
+}
+
+.dash-table {
+    background: transparent;
+}
+
+.dash-table th {
+    color: #e6c779;
+    background: #202326;
+    border-bottom: 1px solid #414448;
+}
+
+.dash-table td {
+    color: #d0d3d3;
+    border-top-color: #34383b;
+}
+
+.dash-table tbody tr:hover {
+    background: rgba(242, 169, 0, 0.055);
+}
+
+.primary-cell {
+    color: #fff3d1;
+}
+
+.secondary-cell {
+    color: #969da2;
+}
+
+.status-out {
+    color: #ffaaa2;
+    background: #442725;
+}
+
+.status-low {
+    color: #ffd777;
+    background: #40351e;
+}
+
+.status-inward {
+    color: #9ee6b6;
+    background: #1e392a;
+}
+
+.status-issue {
+    color: #f7ce73;
+    background: #3b301c;
+}
+
+.status-movement {
+    color: #d1d5d8;
+    background: #34383c;
+}
+
+.empty-state {
+    color: #aab0b4;
+}
+
+.dash-action {
+    color: #f4f1e8;
+    background: linear-gradient(145deg, #25282b, #1d2022);
+    border-color: #3b3f42;
+}
+
+.dash-action:hover {
+    color: #fff7e6;
+    background: #2a2d30;
+    border-color: #b88419;
+    box-shadow: 0 9px 25px rgba(0, 0, 0, 0.2);
+}
+
+.action-icon {
+    color: #f4bd3f;
+    background: rgba(242, 169, 0, 0.12);
+    border: 1px solid rgba(242, 169, 0, 0.16);
+}
+
+.action-text strong {
+    color: #f6f1e5;
+}
+
+.action-text span {
+    color: #9ca3a8;
+}
+
+.dash-chart-panel {
+    background:
+        radial-gradient(
+            circle at 100% 0,
+            rgba(242, 169, 0, 0.055),
+            transparent 35%
+        ),
+        linear-gradient(145deg, #25282b, #1d2022);
+}
+
+.dash-footer {
+    color: #8e969b;
+}
+
+@media (max-width: 600px) {
+    .dash-heading {
+        align-items: flex-start;
+    }
+
+    .dash-date {
+        max-width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dash-card,
+    .dash-action {
+        transition: none;
+    }
+}
+
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="dashboard-page">
+
+    <header class="dash-heading">
+        <div>
+            <h1>Dashboard</h1>
+            <p>KKUL Empty Bags Godown ERP · Stock and operations overview</p>
+        </div>
+
+        <div class="dash-date">
+            📅 {{ today.strftime('%d %b %Y') }}
+        </div>
+    </header>
+
+    <section class="dash-welcome">
+        <h2>
+            Welcome, {{ user.full_name or user.username }} 👋
+        </h2>
+        <p>
+            Godown operations, stock levels and daily transactions</p>
+    </section>
+
+    <section class="dash-metrics">
+        <article class="dash-card">
+            <div class="metric-top">
+                <span class="metric-label">Total Available Stock</span>
+                <span class="metric-icon">📦</span>
+            </div>
+            <div class="metric-value">
+                {{ "{:,}".format(total_stock) }}
+            </div>
+            <div class="metric-note">Active bag types combined stock</div>
+        </article>
+
+        <article class="dash-card">
+            <div class="metric-top">
+                <span class="metric-label">Active Bag Types</span>
+                <span class="metric-icon">🏷️</span>
+            </div>
+            <div class="metric-value">
+                {{ "{:,}".format(total_bag_types) }}
+            </div>
+            <div class="metric-note">Inventory active records</div>
+        </article>
+
+        <article class="dash-card">
+            <div class="metric-top">
+                <span class="metric-label">Today's Inward</span>
+                <span class="metric-icon">📥</span>
+            </div>
+            <div class="metric-value">
+                {{ "{:,}".format(today_inward) }}
+            </div>
+            <div class="metric-note"></div>
+        </article>
+
+        <article class="dash-card">
+            <div class="metric-top">
+                <span class="metric-label">Today's Issues</span>
+                <span class="metric-icon">🚚</span>
+            </div>
+            <div class="metric-value">
+                {{ "{:,}".format(today_issues) }}
+            </div>
+            <div class="metric-note">plants issued bags</div>
+        </article>
+    </section>
+
+    {% if can_manage_plants or can_manage_supervisors
+       or can_view_inventory or can_view_inward
+       or can_view_issues or can_view_reports
+       or can_manage_limits or can_manage_users %}
+    <section>
+        <div class="dash-section-title">
+            <div>
+                <h2>Quick Actions</h2>
+                <p>modules</p>
+            </div>
+        </div>
+
+        <div class="dash-actions">
+
+            {% if can_view_inventory %}
+            <a class="dash-action" href="{{ url_for('inventory.index') }}">
+                <span class="action-icon">📦</span>
+                <span class="action-text">
+                    <strong>Inventory</strong>
+                    <span>Stock and bag types</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_view_inward %}
+            <a class="dash-action" href="{{ url_for('inward.index') }}">
+                <span class="action-icon">📥</span>
+                <span class="action-text">
+                    <strong>Supplier Inward</strong>
+                    <span>Received bags and bills</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_view_issues %}
+            <a class="dash-action" href="{{ url_for('issues.index') }}">
+                <span class="action-icon">🚚</span>
+                <span class="action-text">
+                    <strong>Bag Issue</strong>
+                    <span>Plant issue records</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_view_reports %}
+            <a class="dash-action" href="{{ url_for('reports.index') }}">
+                <span class="action-icon">📊</span>
+                <span class="action-text">
+                    <strong>Reports</strong>
+                    <span>Operational summaries</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_manage_plants %}
+            <a class="dash-action" href="{{ url_for('plants.index') }}">
+                <span class="action-icon">🏭</span>
+                <span class="action-text">
+                    <strong>Plant Management</strong>
+                    <span>Manage production plants</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_manage_supervisors %}
+            <a class="dash-action" href="{{ url_for('supervisors.index') }}">
+                <span class="action-icon">👷</span>
+                <span class="action-text">
+                    <strong>Supervisors</strong>
+                    <span>Manage supervisors</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_manage_limits %}
+            <a class="dash-action" href="{{ url_for('daily_limits.index') }}">
+                <span class="action-icon">🎯</span>
+                <span class="action-text">
+                    <strong>Daily Issue Limits</strong>
+                    <span>Plant-wise quantity limits</span>
+                </span>
+            </a>
+            {% endif %}
+
+            {% if can_manage_users %}
+            <a class="dash-action" href="{{ url_for('users.index') }}">
+                <span class="action-icon">👥</span>
+                <span class="action-text">
+                    <strong>User Management</strong>
+                    <span>Users and access roles</span>
+                </span>
+            </a>
+            {% endif %}
+
+        </div>
+    </section>
+    {% endif %}
+
+{% if can_view_inward or can_view_issues %}
+<section class="dash-analytics">
+    <div class="dash-chart-panel">
+        <div class="dash-chart-header">
+            <div>
+                <h3>Inward vs Plant Issues</h3>
+                <p>Last 7 days · Daily bag quantity comparison</p>
+            </div>
+            <span class="dash-chart-badge">7-Day Overview</span>
+        </div>
+
+        <div class="dash-chart-container">
+            <canvas
+                id="inwardIssueChart"
+                role="img"
+                aria-label="Daily inward and plant issue quantities for the last seven days">
+            </canvas>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+    <div class="dash-grid">
+
+        {% if can_view_inventory %}
+        <section>
+            <div class="dash-section-title">
+                <div>
+                    <h2>Stock Alerts</h2>
+                    <p>
+                        Low stock: less than
+                        {{ "{:,}".format(low_stock_threshold) }} bags
+                    </p>
+                </div>
+            </div>
+
+            <div class="dash-panel">
+                <div class="dash-panel-header">
+                    <div>
+                        <h3>Inventory Attention Required</h3>
+                        <p>Actual current stock for active bag types</p>
+                    </div>
+                    <span class="dash-count">
+                        {{ stock_alerts|length }} alerts
+                    </span>
+                </div>
+
+                <div class="dash-table-wrap">
+                    {% if stock_alerts %}
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Bag Type</th>
+                                <th>Size</th>
+                                <th>Current Stock</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bag in stock_alerts %}
+                            <tr>
+                                <td class="primary-cell">
+                                    {{ bag.bag_name }}
+                                </td>
+                                <td>{{ bag.size_kg }} kg</td>
+                                <td>
+                                    <strong>
+                                        {{ "{:,}".format(bag.current_stock) }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% if bag.status == 'out' %}
+                                    <span class="status-pill status-out">
+                                        ● {{ bag.status_label }}
+                                    </span>
+                                    {% else %}
+                                    <span class="status-pill status-low">
+                                        ● {{ bag.status_label }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="empty-icon">✅</span>
+                        All active bag types are above the low-stock
+                        threshold. No stock alerts right now.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <section>
+            <div class="dash-section-title">
+                <div>
+                    <h2>Recent Transactions</h2>
+                    <p>Latest available inward, issue and stock records</p>
+                </div>
+            </div>
+
+            <div class="dash-panel">
+                <div class="dash-panel-header">
+                    <div>
+                        <h3>Transaction Activity</h3>
+                        <p>Newest records first</p>
+                    </div>
+                    <span class="dash-count">
+                        {{ recent_transactions|length }} records
+                    </span>
+                </div>
+
+                <div class="dash-table-wrap">
+                    {% if recent_transactions %}
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Reference / Details</th>
+                                <th>Quantity</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>
+                                    {% if transaction.transaction_type == 'Inward' %}
+                                    <span class="status-pill status-inward">
+                                        Inward
+                                    </span>
+                                    {% elif transaction.transaction_type == 'Issue' %}
+                                    <span class="status-pill status-issue">
+                                        Issue
+                                    </span>
+                                    {% else %}
+                                    <span class="status-pill status-movement">
+                                        Stock
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="primary-cell">
+                                        {{ transaction.reference_no }}
+                                    </span>
+                                    <span class="secondary-cell">
+                                        {{ transaction.description }}
+                                        {% if transaction.shift is defined %}
+                                            · {{ transaction.shift }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {% if transaction.transaction_type == 'Stock Movement'
+                                              and transaction.quantity > 0 %}
+                                            +
+                                        {% endif %}
+                                        {{ "{:,}".format(transaction.quantity) }}
+                                    </strong>
+                                    {% if transaction.transaction_type == 'Stock Movement' %}
+                                    <span class="secondary-cell">Stock change</span>
+                                    {% else %}
+                                    <span class="secondary-cell">Bags</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ transaction.date.strftime('%d %b %Y') }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <span class="empty-icon">🧾</span>
+                        Abhi dikhane ke liye koi transaction available nahi hai.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="dash-footer">
+        KKUL ERP · Internal Godown Operations Dashboard
+    </footer>
+
+</main>
+
+{% if can_view_inward or can_view_issues %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const canvas = document.getElementById("inwardIssueChart");
+
+    if (!canvas || typeof Chart === "undefined") {
+        return;
+    }
+const labels = JSON.parse('{{ chart_labels | tojson | safe }}');
+const inwardData = JSON.parse('{{ chart_inward_data | tojson | safe }}');
+const issueData = JSON.parse('{{ chart_issues_data | tojson | safe }}');
+    
+    new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Inward",
+                    data: inwardData,
+                  backgroundColor: "rgba(242, 169, 0, 0.78)",
+                  borderColor: "#f2a900",
+                
+                borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 28
+                },
+                {
+                    label: "Plant Issues",
+                    data: issueData,
+                    backgroundColor: "rgba(190, 198, 203, 0.72)",
+borderColor: "#bec6cb",
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 28
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+            plugins: {
+              legend: {
+    position: "top",
+    align: "end",
+    labels: {
+        color: "#d8d4ca",
+        usePointStyle: true,
+        pointStyle: "rectRounded",
+        padding: 18
+    }
+},
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return context.dataset.label + ": " +
+                                Number(context.raw).toLocaleString("en-IN") +
+                                " bags";
+                        }
+                    }
+                }
+            },
+           scales: {
+    x: {
+        ticks: {
+            color: "#aeb4b8"
+        },
+        grid: {
+            display: false
+        },
+        border: {
+            color: "#45494d"
+        }
+    },
+    y: {
+        beginAtZero: true,
+        ticks: {
+            precision: 0,
+            color: "#aeb4b8",
+            callback: function (value) {
+                return Number(value).toLocaleString("en-IN");
+            }
+        },
+        grid: {
+            color: "rgba(190, 198, 203, 0.10)"
+        },
+        border: {
+            display: false
+        }
+    }
+}
+
+            
+        }
+    });
+});
+</script>
+{% endif %}
+
+{% endblock %}

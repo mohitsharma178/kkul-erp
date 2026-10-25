@@ -1,0 +1,597 @@
+{% extends "base.html" %}
+
+{% block title %}Personal Stock Ledger | KKUL ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .personal-hero {
+        padding: 26px;
+        margin-bottom: 22px;
+        border-radius: 16px;
+        color: #ffffff;
+        background: linear-gradient(120deg, #44c20a, #c5160a);
+        box-shadow: 0 8px 24px rgba(40, 53, 66, 0.12);
+    }
+
+    .personal-hero h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .personal-hero p {
+        margin: 8px 0 0;
+        color: #d5e5f1;
+        font-size: 14px;
+    }
+
+    .ledger-card {
+        padding: 22px;
+        margin-bottom: 22px;
+        border: 1px solid #dce5ee;
+        border-radius: 14px;
+        background: #f108b7;
+        box-shadow: 0 5px 20px rgba(16, 36, 58, 0.06);
+    }
+
+    .ledger-card h2 {
+        margin: 0 0 18px;
+        color: #10243a;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .ledger-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .stat {
+        min-width: 0;
+        padding: 20px;
+        border: 1px solid #dce5ee;
+        border-top: 4px solid #315a78;
+        border-radius: 13px;
+        background: #ffffff;
+        box-shadow: 0 5px 18px rgba(16, 36, 58, 0.05);
+    }
+
+    .stat span {
+        display: block;
+        color: #52677d;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .stat strong {
+        display: block;
+        margin-top: 9px;
+        color: #10243a;
+        font-size: 25px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .stat.inward {
+        border-top-color: #13805c;
+    }
+
+    .stat.issued {
+        border-top-color: #c0392b;
+    }
+
+    .stat.closing {
+        border-top-color: #d99a23;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .filter-grid label {
+        display: block;
+        margin-bottom: 7px;
+        color: #344b62;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .filter-grid input {
+        display: block;
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #10243a;
+        font: inherit;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .filter-grid input:focus {
+        outline: none;
+        border-color: #315a78;
+        box-shadow: 0 0 0 3px rgba(49, 90, 120, 0.13);
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .actions .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 10px 16px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .actions .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 36, 58, 0.12);
+    }
+
+    .actions .btn:not(.btn-secondary):not(.btn-success) {
+        background: #163b59;
+        color: #ffffff;
+    }
+
+    .actions .btn-secondary {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+        color: #243b53;
+    }
+
+    .actions .btn-success {
+        background: #13805c;
+        color: #ffffff;
+    }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #dce5ee;
+        border-radius: 10px;
+        background: #ffffff;
+    }
+
+    .ledger-table {
+        width: 100%;
+        min-width: 1550px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 12px;
+    }
+
+    .ledger-table th {
+        padding: 13px 12px;
+        background: #102f49;
+        color: #ffffff;
+        text-align: left;
+        white-space: nowrap;
+        font-weight: 800;
+        border-bottom: 1px solid #244b67;
+    }
+
+    .ledger-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e8eef4;
+        color: #344b62;
+        vertical-align: top;
+        line-height: 1.5;
+    }
+
+    .ledger-table tbody tr:nth-child(even) {
+        background: #f5f8fc;
+    }
+
+    .ledger-table tbody tr:hover {
+        background: #edf5fb;
+    }
+
+    .ledger-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .inward-text {
+        color: #13805c !important;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .issue-text {
+        color: #c0392b !important;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .warning {
+        padding: 14px 16px;
+        margin-bottom: 18px;
+        border: 1px solid #f0d28a;
+        border-left: 4px solid #d99a23;
+        border-radius: 9px;
+        color: #805b0a;
+        background: #fff9e8;
+        line-height: 1.6;
+    }
+
+    .empty {
+        padding: 30px !important;
+        text-align: center;
+        color: #718096 !important;
+        background: #ffffff;
+    }
+
+    .ledger-note {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #52677d;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .ledger-note strong {
+        color: #10243a;
+    }
+
+    @media (max-width: 1000px) {
+        .ledger-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .personal-hero {
+            padding: 20px;
+        }
+
+        .personal-hero h1 {
+            font-size: 21px;
+            overflow-wrap: anywhere;
+        }
+
+        .ledger-stats,
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat {
+            padding: 16px;
+        }
+
+        .stat strong {
+            font-size: 22px;
+        }
+
+        .ledger-card {
+            padding: 15px;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+
+        .actions .btn {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
+    @media print {
+        @page {
+            size: landscape;
+            margin: 10mm;
+        }
+
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .no-print,
+        .erp-header,
+        .navigation-wrap,
+        .erp-footer,
+        .kkul-loader,
+        .kkul-transition {
+            display: none !important;
+        }
+
+        .main-content {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .personal-hero {
+            padding: 12px;
+            margin-bottom: 12px;
+            color: #000000 !important;
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1;
+            box-shadow: none;
+        }
+
+        .personal-hero h1,
+        .personal-hero p {
+            color: #000000 !important;
+        }
+
+        .ledger-stats {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .stat,
+        .ledger-card {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            box-shadow: none;
+            background: #ffffff !important;
+            break-inside: avoid;
+        }
+
+        .stat strong {
+            font-size: 16px;
+        }
+
+        .table-wrap {
+            overflow: visible;
+            border: 1px solid #cbd5e1;
+        }
+
+        .ledger-table {
+            width: 100%;
+            min-width: 0;
+            font-size: 8px;
+        }
+
+        .ledger-table th,
+        .ledger-table td {
+            padding: 5px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .ledger-table th {
+            color: #000000 !important;
+            background: #e8eef4 !important;
+        }
+
+        .ledger-table tbody tr:nth-child(even) {
+            background: #f5f8fc !important;
+        }
+
+        .warning {
+            color: #000000 !important;
+            background: #ffffff !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="main-content">
+
+    <section class="personal-hero">
+        <h1>📒 {{ bag.name }} — {{ bag.size_kg }} KG</h1>
+        <p>Personal Stock Ledger | Date-wise Supplier Inward &amp; Plant Issue</p>
+    </section>
+
+    <section class="ledger-stats">
+        <div class="stat">
+            <span>OPENING BALANCE</span>
+            <strong>{{ "{:,}".format(opening_balance) }}</strong>
+        </div>
+
+        <div class="stat inward">
+            <span>TOTAL INWARD</span>
+            <strong>{{ "{:,}".format(total_inward) }}</strong>
+        </div>
+
+        <div class="stat issued">
+            <span>TOTAL ISSUED</span>
+            <strong>{{ "{:,}".format(total_issued) }}</strong>
+        </div>
+
+        <div class="stat closing">
+            <span>CLOSING BALANCE</span>
+            <strong>{{ "{:,}".format(closing_balance) }}</strong>
+        </div>
+    </section>
+
+    {% if unmatched_records %}
+    <div class="warning">
+        <strong>Verification required:</strong>
+        {{ unmatched_records }} movement record(s) could not be matched
+        to their inward/issue details. These records are shown using
+        the available movement data; please verify before relying on
+        the report as a final accounting statement.
+    </div>
+    {% endif %}
+
+    <section class="ledger-card no-print">
+        <h2>Filter Ledger</h2>
+
+        <form method="GET"
+              action="{{ url_for('stock_ledger.personal_ledger', bag_id=bag.id) }}">
+
+            <div class="filter-grid">
+                <div>
+                    <label for="start_date">Start Date</label>
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        value="{{ start_date.isoformat() }}"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="end_date">End Date</label>
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        value="{{ end_date.isoformat() }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn">
+                    Apply Filter
+                </button>
+
+                <a href="{{ url_for('stock_ledger.personal_ledger', bag_id=bag.id) }}"
+                   class="btn btn-secondary">
+                    Reset
+                </a>
+
+                <button type="button" class="btn btn-success"
+                        onclick="window.print()">
+                    🖨️ Print Ledger
+                </button>
+
+                <a href="{{ url_for('stock_ledger.index') }}"
+                   class="btn btn-secondary">
+                    ← All Bags
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="ledger-card">
+        <h2>Transaction History</h2>
+
+        <p>
+            <strong>Period:</strong>
+            {{ start_date.strftime('%d-%m-%Y') }}
+            to
+            {{ end_date.strftime('%d-%m-%Y') }}
+        </p>
+
+        <div class="table-wrap">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Transaction</th>
+                        <th>Reference</th>
+                        <th>Supplier</th>
+                        <th>Bill No.</th>
+                        <th>Vehicle No.</th>
+                        <th>Plant</th>
+                        <th>Supervisor</th>
+                        <th>Shift</th>
+                        <th>Inward (+)</th>
+                        <th>Issue (-)</th>
+                        <th>Running Balance</th>
+                        <th>Bill Photo</th>
+                        <th>Parchi Photo</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in ledger_rows %}
+                    <tr>
+                        <td>{{ row.date.strftime('%d-%m-%Y') }}</td>
+
+                        <td>
+                            {% if row.movement_type == 'supplier_inward' %}
+                                Supplier Inward
+                            {% else %}
+                                Plant Issue
+                            {% endif %}
+                        </td>
+
+                        <td>{{ row.reference_no or 'Not matched' }}</td>
+                        <td>{{ row.supplier_name or '—' }}</td>
+                        <td>{{ row.bill_number or '—' }}</td>
+                        <td>{{ row.vehicle_number or '—' }}</td>
+                        <td>{{ row.plant_name or '—' }}</td>
+                        <td>{{ row.supervisor_name or '—' }}</td>
+                        <td>{{ row.shift or '—' }}</td>
+
+                        <td class="inward-text">
+                            {% if row.inward_qty %}
+                                +{{ "{:,}".format(row.inward_qty) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td class="issue-text">
+                            {% if row.issue_qty %}
+                                -{{ "{:,}".format(row.issue_qty) }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ "{:,}".format(row.running_balance) }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {% if row.bill_photo %}
+                                {{ row.bill_photo }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if row.parchi_photo %}
+                                {{ row.parchi_photo }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="14" class="empty">
+                            Is date range mein koi transaction nahi mila.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="ledger-note">
+            Actual current stock:
+            <strong>{{ "{:,}".format(current_stock) }}</strong> bags.
+            Historical closing balance aur actual current stock alag ho sakte
+            hain jab selected period current date tak na ho.
+        </div>
+    </section>
+
+</main>
+{% endblock %}

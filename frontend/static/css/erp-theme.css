@@ -1,0 +1,1362 @@
+
+/* ==========================================
+   KKUL ERP — Premium Shared Theme
+   Shared styling for all ERP pages
+========================================== */
+
+:root {
+    --kkul-navy: #102347;
+    --kkul-blue: #2457d6;
+    --kkul-blue-light: #eaf1ff;
+    --kkul-gold: #f5bd22;
+    --kkul-green: #16845b;
+    --kkul-red: #d63c4b;
+    --kkul-bg: #f3f6fc;
+    --kkul-white: #ffffff;
+    --kkul-text: #1b2940;
+    --kkul-muted: #718096;
+    --kkul-border: #e0e7f1;
+    --kkul-shadow: 0 8px 26px rgba(16, 35, 71, 0.08);
+    --kkul-radius: 16px;
+}
+
+/* Overall page */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        radial-gradient(ellipse at top left, #e7eeff 0%, transparent 38%),
+        var(--kkul-bg);
+    color: var(--kkul-text);
+}
+
+/* Header and navigation */
+header,
+.topbar,
+.navbar,
+.page-header {
+    transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+header,
+.topbar,
+.navbar {
+    border-color: var(--kkul-border);
+}
+
+nav a,
+.nav-links a,
+.navbar a {
+    transition: color 0.2s ease, background 0.2s ease,
+                transform 0.2s ease;
+}
+
+nav a:hover,
+.nav-links a:hover,
+.navbar a:hover {
+    color: var(--kkul-blue);
+}
+
+/* Main content */
+main,
+.main-content {
+    animation: kkulContentEnter 0.45s ease both;
+}
+
+@keyframes kkulContentEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Cards */
+.card,
+.stat-card,
+.metric-card,
+.panel,
+.dashboard-card {
+    border: 1px solid rgba(224, 231, 241, 0.9);
+    border-radius: var(--kkul-radius);
+    box-shadow: var(--kkul-shadow);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.card:hover,
+.stat-card:hover,
+.metric-card:hover,
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(16, 35, 71, 0.12);
+}
+
+/* Buttons */
+button,
+.btn,
+input[type="submit"],
+input[type="button"],
+a.btn {
+    transition: transform 0.18s ease, box-shadow 0.18s ease,
+                filter 0.18s ease;
+}
+
+button:hover,
+.btn:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+a.btn:hover {
+    filter: brightness(1.04);
+    box-shadow: 0 5px 14px rgba(36, 87, 214, 0.15);
+}
+
+button:active,
+.btn:active,
+input[type="submit"]:active {
+    transform: scale(0.98);
+}
+
+/* Form fields */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--kkul-blue) !important;
+    box-shadow: 0 0 0 3px rgba(36, 87, 214, 0.12);
+}
+
+/* Tables */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+thead th {
+    background: #edf2fc;
+    color: var(--kkul-navy);
+    font-weight: 700;
+}
+
+tbody tr {
+    transition: background 0.18s ease;
+}
+
+tbody tr:hover {
+    background: #f2f6ff;
+}
+
+/* Status labels */
+.badge,
+.status-badge {
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: 0.15px;
+}
+
+/* Flash notifications */
+.flash,
+.alert,
+.flash-message {
+    border-radius: 12px;
+    animation: kkulNoticeEnter 0.3s ease both;
+}
+
+@keyframes kkulNoticeEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-7px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Logo */
+.logo img,
+.brand-logo img,
+header img {
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.logo img:hover,
+.brand-logo img:hover {
+    transform: scale(1.04);
+}
+
+/* Footer */
+footer {
+    color: var(--kkul-muted);
+}
+
+/* Accessible keyboard focus */
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid rgba(36, 87, 214, 0.5);
+    outline-offset: 3px;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* KKUL page transition overlay */
+.kkul-transition {
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background:
+        radial-gradient(circle at top right, #254c6c 0, transparent 38%),
+        linear-gradient(135deg, #0b1727, #102c43 60%, #123c4a);
+    color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.kkul-transition.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.kkul-transition img {
+    width: 82px;
+    height: 82px;
+    padding: 6px;
+    object-fit: contain;
+    border-radius: 18px;
+    background: #fff;
+    animation: logoFloat 1.1s ease-in-out infinite;
+}
+
+.kkul-transition p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+#mainContent {
+    animation: pageAppear 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kkul-transition,
+    #mainContent {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* KKUL ERP - Missing animation definitions */
+
+@keyframes logoFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes pageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Keep transition overlay above all page elements */
+.kkul-transition {
+    will-change: opacity;
+}
+
+.kkul-transition.is-visible img {
+    animation: logoFloat 1.1s ease-in-out infinite;
+}
+
+/* ==========================================
+   KKUL ERP - Mobile Responsive Improvements
+   Add at the end of erp-theme.css
+========================================== */
+
+/* Prevent unwanted horizontal overflow */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+body {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: clip;
+}
+
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+}
+
+/* Keep page content within the screen */
+.main-content,
+#mainContent,
+.page-header,
+.navigation-wrap {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.main-content {
+    padding-left: clamp(12px, 2.5vw, 28px);
+    padding-right: clamp(12px, 2.5vw, 28px);
+}
+
+/* Navigation can wrap on smaller screens */
+.erp-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.erp-navigation a,
+.erp-navigation button {
+    max-width: 100%;
+}
+
+/* Forms should fit their containers */
+input,
+select,
+textarea,
+button {
+    max-width: 100%;
+    font: inherit;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+    width: 100%;
+    min-width: 0;
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"] {
+    max-width: 100%;
+}
+
+button,
+.btn,
+input[type="submit"],
+input[type="button"] {
+    min-height: 40px;
+}
+
+/* Tables can scroll horizontally without breaking the page */
+table {
+    width: 100%;
+    max-width: 100%;
+}
+
+.table-responsive,
+.table-container,
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Dashboard cards and common grid layouts */
+.dashboard-grid,
+.stats-grid,
+.metrics-grid,
+.cards-grid {
+    min-width: 0;
+}
+
+.card,
+.stat-card,
+.metric-card,
+.panel,
+.dashboard-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Tablet and mobile */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 14px;
+    }
+
+    .erp-navigation {
+        gap: 6px;
+    }
+
+    .erp-navigation a,
+    .erp-navigation button {
+        padding: 9px 10px;
+        font-size: 14px;
+    }
+
+    .page-header {
+        gap: 12px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-grid,
+    .stats-grid,
+    .metrics-grid,
+    .cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        white-space: nowrap;
+    }
+
+    .erp-footer {
+        padding: 14px;
+        text-align: center;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+    }
+
+    .dashboard-grid,
+    .stats-grid,
+    .metrics-grid,
+    .cards-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .erp-navigation {
+        align-items: stretch;
+    }
+
+    .erp-navigation a,
+    .erp-navigation button {
+        font-size: 13px;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+        overflow-wrap: anywhere;
+    }
+
+    form button,
+    form input[type="submit"],
+    form input[type="button"] {
+        max-width: 100%;
+    }
+
+    .kkul-transition img {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* KKUL ERP - Responsive hamburger navigation */
+
+.mobile-menu-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 46px;
+        margin-bottom: 10px;
+        padding: 10px 14px;
+        border: 1px solid var(--kkul-border);
+        border-radius: 12px;
+        background: var(--kkul-navy);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .mobile-menu-icon {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .erp-navigation {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 12px;
+        border: 1px solid var(--kkul-border);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: var(--kkul-shadow);
+    }
+
+    .erp-navigation.is-open {
+        display: flex;
+    }
+
+    .erp-navigation a {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+    .erp-navigation .spacer {
+        display: none;
+    }
+
+    .erp-navigation .logout-form,
+    .erp-navigation .logout-button {
+        width: 100%;
+    }
+}
+
+/* ==========================================
+   KKUL ERP — INDUSTRIAL LUXE THEME
+   Shared visual layer; preserves app logic
+   ========================================== */
+
+:root {
+    --navy: #17191d;
+    --navy-light: #25292e;
+    --primary: #f59e0b;
+    --primary-dark: #d97706;
+    --green: #22c55e;
+
+    --background: #111315;
+    --surface: #1b1e22;
+    --text: #f3f4f6;
+    --muted: #a1a1aa;
+    --border: #343940;
+
+    --danger: #f87171;
+    --warning: #fbbf24;
+
+    --radius: 14px;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+/* Page background */
+
+html,
+body {
+    background-color: var(--background);
+}
+
+body {
+    color: var(--text);
+    background-image:
+        radial-gradient(
+            ellipse at 12% 0%,
+            rgba(245, 158, 11, 0.07),
+            transparent 38%
+        ),
+        radial-gradient(
+            ellipse at 100% 55%,
+            rgba(148, 163, 184, 0.045),
+            transparent 35%
+        );
+    background-attachment: fixed;
+}
+
+/* Links */
+
+a {
+    color: #fbbf24;
+}
+
+a:hover {
+    color: #fcd34d;
+}
+
+/* Company header */
+
+.erp-header {
+    background:
+        radial-gradient(
+            ellipse at 90% 0%,
+            rgba(245, 158, 11, 0.12),
+            transparent 42%
+        ),
+        linear-gradient(120deg, #111315, #202329 65%, #29251e);
+    border-bottom: 1px solid #49402e;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.brand-caption {
+    color: #c4b9a5;
+}
+
+.brand-logo {
+    background: #f9fafb;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.user-avatar {
+    background: #3a2b12;
+    color: #fbbf24;
+    border: 1px solid #73521d;
+}
+
+.user-role {
+    background: rgba(245, 158, 11, 0.13);
+    color: #fcd34d;
+}
+
+/* Navigation */
+
+.navigation-wrap {
+    background: rgba(23, 25, 29, 0.97);
+    border-bottom: 1px solid var(--border);
+}
+
+.erp-navigation {
+    background: transparent;
+}
+
+.erp-navigation > a {
+    color: #c4c7ce;
+    border-bottom-color: transparent;
+}
+
+.erp-navigation > a:hover,
+.erp-navigation > a:focus-visible {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.08);
+    border-bottom-color: #f59e0b;
+}
+
+/* Mobile menu button */
+
+.mobile-menu-toggle {
+    color: #fbbf24;
+    background: #1b1e22;
+    border: 1px solid #49402e;
+}
+
+/* Main page headings */
+
+.page-header h1,
+.section-title {
+    color: #f9fafb;
+}
+
+.page-header p {
+    color: #a1a1aa;
+}
+
+/* Cards and panels */
+
+.card,
+.panel,
+.dashboard-card,
+.report-card,
+.form-card,
+.table-card,
+.form-section,
+.table-section {
+    color: var(--text);
+    background: linear-gradient(145deg, #202329, #191b1f);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+}
+
+.card h2,
+.panel h2,
+.form-card h2,
+.table-card h2,
+.form-section h2,
+.table-section h2 {
+    color: #f3f4f6;
+}
+
+.dashboard-card {
+    border-top: 2px solid #6b4a17;
+    transition:
+        transform 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    border-top-color: #f59e0b;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+}
+
+.stat-label,
+.stat-note,
+.text-muted {
+    color: #a1a1aa;
+}
+
+.stat-value {
+    color: #fbbf24;
+}
+
+/* Forms */
+
+.form-group label,
+.field-label {
+    color: #e5e7eb;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select,
+textarea {
+    color: #f3f4f6;
+    background: #111315;
+    border: 1px solid #41464f;
+    border-radius: 9px;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #777e89;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14);
+}
+
+input[type="file"] {
+    background: #17191d;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: #f59e0b;
+}
+
+select option {
+    color: #f3f4f6;
+    background: #1b1e22;
+}
+
+/* Buttons */
+
+.btn,
+button.btn {
+    color: #17130b;
+    background: #f59e0b;
+    border-color: #f59e0b;
+    font-weight: 800;
+}
+
+.btn:hover,
+button.btn:hover {
+    color: #17130b;
+    background: #fbbf24;
+    border-color: #fbbf24;
+}
+
+.btn-success {
+    color: #052e16;
+    background: #4ade80;
+}
+
+.btn-success:hover {
+    color: #052e16;
+    background: #86efac;
+}
+
+.btn-danger {
+    color: #fff;
+    background: #b91c1c;
+}
+
+.btn-danger:hover {
+    color: #fff;
+    background: #dc2626;
+}
+
+.btn-secondary {
+    color: #e5e7eb;
+    background: #30343b;
+    border-color: #454b55;
+}
+
+.btn-secondary:hover {
+    color: #fff;
+    background: #41464f;
+}
+
+/* Logout */
+
+.logout-button {
+    color: #fbbf24;
+    background: #2a2115;
+    border: 1px solid #73521d;
+}
+
+.logout-button:hover {
+    color: #17130b;
+    background: #f59e0b;
+    border-color: #f59e0b;
+}
+
+/* Tables */
+
+.table-wrapper,
+.table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+}
+
+table {
+    color: #e5e7eb;
+    background: #1b1e22;
+}
+
+thead th {
+    color: #fbbf24;
+    background: #29251e;
+    border-bottom: 1px solid #49402e;
+}
+
+tbody td {
+    color: #d1d5db;
+    border-bottom: 1px solid #30343b;
+}
+
+tbody tr:hover {
+    background: #292c31;
+}
+
+tbody tr:last-child td {
+    border-bottom-color: transparent;
+}
+
+/* Status badges */
+
+.badge,
+.status-badge {
+    color: #e5e7eb;
+    background: #343940;
+}
+
+.badge-success,
+.status-success {
+    color: #86efac;
+    background: #123523;
+}
+
+.badge-danger,
+.status-danger {
+    color: #fca5a5;
+    background: #451d20;
+}
+
+.badge-warning,
+.status-warning {
+    color: #fcd34d;
+    background: #3b2b12;
+}
+
+.badge-info,
+.status-info {
+    color: #93c5fd;
+    background: #172c42;
+}
+
+/* Report filters and quick filter links */
+
+.filter-bar,
+.quick-filters {
+    color: var(--text);
+    background: #1b1e22;
+    border-color: var(--border);
+}
+
+.quick-filters a {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 13px;
+    margin: 3px;
+    color: #fbbf24;
+    background: #2a2115;
+    border: 1px solid #594321;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.quick-filters a:hover {
+    color: #17130b;
+    background: #f59e0b;
+}
+
+/* Flash messages */
+
+.flash-success {
+    color: #86efac;
+    background: #123523;
+    border-color: #276749;
+}
+
+.flash-danger,
+.flash-error {
+    color: #fca5a5;
+    background: #451d20;
+    border-color: #7f3035;
+}
+
+.flash-warning {
+    color: #fcd34d;
+    background: #3b2b12;
+    border-color: #73521d;
+}
+
+.flash-info {
+    color: #93c5fd;
+    background: #172c42;
+    border-color: #285078;
+}
+
+/* Footer */
+
+.erp-footer {
+    color: #9ca3af;
+    background: #17191d;
+    border-top: 1px solid #343940;
+}
+
+.erp-footer strong {
+    color: #fbbf24;
+}
+
+/* Loader */
+
+.kkul-loader {
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(245, 158, 11, 0.17),
+            transparent 40%
+        ),
+        linear-gradient(135deg, #111315, #202329 65%, #302517);
+}
+
+.kkul-loader-logo {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.07);
+}
+
+.kkul-loader-subtitle {
+    color: #c4b9a5;
+}
+
+.loader-progress {
+    background: #f59e0b;
+}
+
+/* Page transition overlay */
+
+.kkul-transition {
+    color: #fbbf24;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(245, 158, 11, 0.12),
+            transparent 45%
+        ),
+        #111315;
+}
+
+/* Keep focus visible for keyboard users */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 3px;
+}
+
+/* Mobile spacing */
+
+@media (max-width: 600px) {
+    .mobile-menu-toggle {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .erp-navigation.is-open {
+        background: #17191d;
+    }
+}
+
+/* Respect reduced-motion preference */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =========================================
+   KKUL ERP — INDUSTRIAL LUXE LOGIN
+   Charcoal + Amber Gold
+========================================= */
+
+.login-page {
+    min-height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            ellipse at 15% 15%,
+            rgba(242, 169, 0, 0.13),
+            transparent 42%
+        ),
+        radial-gradient(
+            ellipse at 90% 85%,
+            rgba(242, 169, 0, 0.07),
+            transparent 38%
+        ),
+        linear-gradient(135deg, #101214, #1b1e21 55%, #111315);
+}
+
+.login-page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.16;
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+        );
+    background-size: 36px 36px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 42px 38px 30px;
+    position: relative;
+    overflow: hidden;
+    color: #f5f5f2;
+    background: linear-gradient(
+        145deg,
+        rgba(38, 41, 44, 0.98),
+        rgba(25, 27, 29, 0.98)
+    );
+    border: 1px solid rgba(242, 169, 0, 0.28);
+    border-radius: 18px;
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.48),
+        0 0 35px rgba(242, 169, 0, 0.055);
+    animation: kkulLoginReveal 0.65s ease both;
+}
+
+.login-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+        90deg,
+        #8f6200,
+        #f2a900,
+        #ffcf57,
+        #f2a900
+    );
+}
+
+.brand-mark {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 22px;
+    border: 1px solid rgba(242, 169, 0, 0.7);
+    border-radius: 16px;
+    background: linear-gradient(145deg, #f8bd35, #d99100);
+    color: #191919;
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    box-shadow: 0 8px 26px rgba(242, 169, 0, 0.18);
+}
+
+.login-card .eyebrow {
+    margin: 0 0 12px;
+    color: #f2b52d;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.login-card h1 {
+    margin: 0 0 10px;
+    color: #fff;
+    font-size: clamp(28px, 4vw, 35px);
+    font-weight: 750;
+    letter-spacing: -1px;
+    text-align: center;
+}
+
+.login-card .muted {
+    margin: 0 0 30px;
+    color: #aeb3b7;
+    font-size: 14px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.login-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.login-card label {
+    margin-top: 7px;
+    color: #e4e5e3;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.login-card input[type="text"],
+.login-card input[type="password"] {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    color: #f7f7f4;
+    background: #17191b;
+    border: 1px solid #414448;
+    border-radius: 9px;
+    outline: none;
+    font: inherit;
+    font-size: 14px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.login-card input::placeholder {
+    color: #858b90;
+}
+
+.login-card input:focus {
+    background: #1d2022;
+    border-color: #f2a900;
+    box-shadow: 0 0 0 3px rgba(242, 169, 0, 0.15);
+}
+
+.login-card input:-webkit-autofill,
+.login-card input:-webkit-autofill:hover,
+.login-card input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f7f7f4;
+    box-shadow: 0 0 0 1000px #1d2022 inset;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+.login-card .btn.btn-primary {
+    width: 100%;
+    min-height: 49px;
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ffc84b;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #ffca4b, #e8a000);
+    color: #191919;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    box-shadow: 0 7px 20px rgba(242, 169, 0, 0.15);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.login-card .btn.btn-primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 11px 26px rgba(242, 169, 0, 0.25);
+}
+
+.login-card .btn.btn-primary:active {
+    transform: translateY(0);
+}
+
+.login-card .btn.btn-primary:focus-visible {
+    outline: 3px solid rgba(255, 200, 75, 0.5);
+    outline-offset: 3px;
+}
+
+.login-card .alert {
+    padding: 12px 14px;
+    margin: 0 0 16px;
+    border: 1px solid #5a4540;
+    border-radius: 8px;
+    background: #302321;
+    color: #ffd7cf;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.login-card .alert-success {
+    border-color: #32664b;
+    background: #192c23;
+    color: #b8f2cd;
+}
+
+.login-card .alert-warning,
+.login-card .alert-info {
+    border-color: #80621f;
+    background: #302817;
+    color: #ffe2a0;
+}
+
+.login-card .login-footer {
+    margin: 28px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid #393c3f;
+    color: #92989d;
+    font-size: 11px;
+    letter-spacing: 1.3px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+@keyframes kkulLoginReveal {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 520px) {
+    .login-page {
+        min-height: calc(100vh - 70px);
+        padding: 28px 14px;
+    }
+
+    .login-card {
+        padding: 34px 23px 25px;
+        border-radius: 14px;
+    }
+
+    .brand-mark {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-card {
+        animation: none;
+    }
+
+    .login-card input,
+    .login-card .btn.btn-primary {
+        transition: none;
+    }
+}

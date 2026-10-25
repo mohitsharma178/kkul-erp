@@ -1,0 +1,322 @@
+
+{% extends "base.html" %}
+
+{% block title %}Inventory | KKUL ERP{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    /* KKUL Industrial Luxe — Inventory */
+    .main-content {
+        width: min(1500px, 100%);
+        margin: 0 auto;
+        padding: 28px;
+        color: #f4f1e8;
+    }
+
+    .page-header {
+        margin-bottom: 26px;
+    }
+
+    .page-header h1 {
+        color: #f4f1e8;
+        margin: 8px 0;
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        letter-spacing: -0.035em;
+    }
+
+    .page-header .eyebrow {
+        color: #f2a900;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+    }
+
+    .page-header .muted {
+        color: #a7adb2;
+    }
+
+    .page-header a {
+        display: inline-block;
+        margin: 12px 12px 0 0;
+        color: #f2a900;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .page-header a:hover {
+        color: #ffd166;
+    }
+
+    .content-card {
+        margin: 22px 0;
+        padding: 24px;
+        background: linear-gradient(145deg, #25292d, #1d2023);
+        border: 1px solid #3a3e42;
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+        min-width: 0;
+    }
+
+    .content-card h2 {
+        color: #f2a900;
+        margin: 0 0 20px;
+        font-size: 1.25rem;
+    }
+
+    .content-card p {
+        color: #c6c9ca;
+    }
+
+    .content-card form {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .content-card label {
+        color: #d9dcdd;
+        font-size: 0.88rem;
+        font-weight: 650;
+        margin-top: 5px;
+    }
+
+    .content-card input,
+    .content-card select {
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        padding: 11px 12px;
+        color: #f4f1e8;
+        background: #17191b;
+        border: 1px solid #454a4e;
+        border-radius: 9px;
+        font: inherit;
+        outline: none;
+    }
+
+    .content-card input:focus,
+    .content-card select:focus {
+        border-color: #f2a900;
+        box-shadow: 0 0 0 3px rgba(242, 169, 0, 0.14);
+    }
+
+    .content-card input::placeholder {
+        color: #858b90;
+    }
+
+    .content-card .btn.btn-primary {
+        align-self: flex-start;
+        margin-top: 8px;
+        padding: 11px 18px;
+        color: #191a1b;
+        background: #f2a900;
+        border: 1px solid #f2a900;
+        border-radius: 9px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .content-card .btn.btn-primary:hover {
+        background: #ffd166;
+        border-color: #ffd166;
+        transform: translateY(-1px);
+    }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #3a3e42;
+        border-radius: 10px;
+    }
+
+    .content-card table {
+        width: 100%;
+        min-width: 720px;
+        border-collapse: collapse;
+        color: #e8e8e5;
+        background: #202326;
+    }
+
+    .content-card th {
+        padding: 14px 13px;
+        color: #f2a900;
+        background: #17191b;
+        text-align: left;
+        white-space: nowrap;
+        font-size: 0.82rem;
+        letter-spacing: 0.035em;
+    }
+
+    .content-card td {
+        padding: 14px 13px;
+        border-top: 1px solid #363a3e;
+        vertical-align: top;
+    }
+
+    .content-card tbody tr:hover {
+        background: rgba(242, 169, 0, 0.045);
+    }
+
+    .content-card td form {
+        min-width: 190px;
+    }
+
+    .alert {
+        margin: 12px 0;
+        padding: 12px 15px;
+        border-radius: 9px;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 700px) {
+        .main-content {
+            padding: 16px;
+        }
+
+        .content-card {
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .page-header a {
+            margin-right: 8px;
+        }
+
+        .content-card .btn.btn-primary {
+            width: 100%;
+            align-self: stretch;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .content-card .btn.btn-primary {
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="main-content">
+    <header class="page-header">
+        <p class="eyebrow">KAPILA KRISHI UDYOG LIMITED</p>
+        <h1>Inventory Management</h1>
+        <p class="muted"></p>
+        <a href="{{ url_for('dashboard.index') }}">← Dashboard</a>
+        <a href="{{ url_for('inventory.index') }}">Inventory Management</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="content-card">
+        <h2>Add Bag Type</h2>
+        <form method="POST" action="{{ url_for('inventory.add_bag') }}">
+         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="name">Bag brand / name</label>
+            <input id="name" name="name" maxlength="150"
+                   placeholder="Example: Nirmata Mikomore" required>
+
+            <label for="size_kg">Bag weight (kg)</label>
+            <input id="size_kg" name="size_kg" type="number"
+                   min="0.01" max="9999" step="0.01"
+                   placeholder="25 or 50" required>
+
+            <button class="btn btn-primary" type="submit">
+                Add Bag Type
+            </button>
+        </form>
+    </section>
+
+    <section class="content-card">
+        <h2>Current Stock</h2>
+        {% if bags %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bag Name</th>
+                            <th>Weight</th>
+                            <th>Current Quantity</th>
+                            <th>Update Physical Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bag in bags %}
+                            <tr>
+                                <td>{{ bag.name }}</td>
+                                <td>{{ bag.size_kg }} kg</td>
+                                <td>{{ bag.current_stock }}</td>
+                                <td>
+                                    <form method="POST"
+                                          action="{{ url_for('inventory.set_stock', bag_id=bag.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                          <label for="qty-{{ bag.id }}">New count</label>
+                                        <input id="qty-{{ bag.id }}"
+                                               name="quantity" type="number"
+                                               min="0" step="1"
+                                               value="{{ bag.current_stock }}"
+                                               required>
+                                        <label for="reason-{{ bag.id }}">Reason</label>
+                                        <input id="reason-{{ bag.id }}"
+                                               name="reason" maxlength="255"
+                                               placeholder="Opening count / correction"
+                                               required>
+                                        <button class="btn btn-primary" type="submit">
+                                            Save Stock
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No bag types added yet. Add your first bag above.</p>
+        {% endif %}
+    </section>
+
+    <section class="content-card">
+        <h2>Recent Stock Changes</h2>
+        {% if movements %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date / Time</th>
+                            <th>Bag</th>
+                            <th>Previous</th>
+                            <th>New</th>
+                            <th>Reason</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in movements %}
+                            <tr>
+                                <td>{{ item.created_at }}</td>
+                                <td>{{ item.bag_type.name }} ({{ item.bag_type.size_kg }} kg)</td>
+                                <td>{{ item.previous_qty }}</td>
+                                <td>{{ item.new_qty }}</td>
+                                <td>{{ item.reason }}</td>
+                                <td>{{ item.user.full_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>NO CHANGEMENT HISTORY.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

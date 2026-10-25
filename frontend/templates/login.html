@@ -1,0 +1,54 @@
+
+{% extends "base.html" %}
+
+{% block title %}Login | KKUL ERP{% endblock %}
+
+{% block body %}
+<main class="login-page">
+    <section class="login-card">
+        <div class="brand-mark">KK</div>
+        <p class="eyebrow">KAPILA KRISHI UDYOG LIMITED</p>
+        <h1>Welcome back</h1>
+        <p class="muted">Sign in to access the Godown ERP.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="username">Username</label>
+            <input
+                id="username"
+                name="username"
+                type="text"
+                autocomplete="username"
+                maxlength="80"
+                required
+                autofocus
+            >
+
+            <label for="password">Password</label>
+            <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button class="btn btn-primary full-width" type="submit">
+                Sign in
+            </button>
+        </form>
+
+        <p class="login-footer">Authorized users only</p>
+    </section>
+</main>
+{% endblock %}

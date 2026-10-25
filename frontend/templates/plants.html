@@ -1,0 +1,77 @@
+
+{% extends "base.html" %}
+{% block title %}Plant Management | KKUL ERP{% endblock %}
+
+{% block body %}
+<main class="main-content">
+    <header class="page-header">
+        <div>
+            <h1>Plant Management</h1>
+            <p></p>
+        </div>
+        <a href="{{ url_for('dashboard.index') }}">← Dashboard</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="content-card">
+        <h2>Add New Plant</h2>
+        <form method="POST" action="{{ url_for('plants.index') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="name">Plant Name</label>
+            <input
+                id="name"
+                name="name"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="e.g. Hindustan Plant"
+            >
+            <button type="submit" class="btn btn-primary">Add Plant</button>
+        </form>
+    </section>
+
+    <section class="content-card">
+        <h2>Registered Plants ({{ plants|length }})</h2>
+
+        {% if plants %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Plant Name</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plant in plants %}
+                    <tr>
+                        <td>{{ plant.id }}</td>
+                        <td>{{ plant.name }}</td>
+                        <td>{{ "Active" if plant.is_active else "Inactive" }}</td>
+                        <td>
+                            <form method="POST"
+      action="{{ url_for('plants.toggle', plant_id=plant.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn">
+                                    {{ "Deactivate" if plant.is_active else "Activate" }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p></p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

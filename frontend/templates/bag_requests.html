@@ -1,0 +1,204 @@
+
+{% extends "base.html" %}
+{% block title %}Bag Request Management | KKUL ERP{% endblock %}
+
+{% block body %}
+<main class="main-content">
+
+    <header class="page-header">
+        <div>
+            <h1>Bag Request Management</h1>
+            <p>Supervisor ki bag demand ka record.</p>
+        </div>
+
+        <a href="{{ url_for('dashboard.index') }}">← Dashboard</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="report-section">
+        <h2>Create New Bag Request</h2>
+
+        <form method="POST" action="{{ url_for('bag_requests.index') }}">
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="plant_id">Plant *</label>
+                    <select id="plant_id" name="plant_id" required>
+                        <option value="">Select Plant</option>
+                        {% for plant in plants %}
+                            <option value="{{ plant.id }}">
+                                {{ plant.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="supervisor_id">Supervisor *</label>
+                    <select id="supervisor_id" name="supervisor_id" required>
+                        <option value="">Select Supervisor</option>
+                        {% for supervisor in supervisors %}
+                            <option
+                                value="{{ supervisor.id }}"
+                                data-plant="{{ supervisor.plant_id }}"
+                            >
+                                {{ supervisor.name }} — {{ supervisor.plant.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="bag_type_id">Bag Brand / Size *</label>
+                    <select id="bag_type_id" name="bag_type_id" required>
+                        <option value="">Select Bag Brand / Size</option>
+                        {% for bag in bag_types %}
+                            <option value="{{ bag.id }}">
+                                {{ bag.name }} — {{ bag.size_kg }} kg
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="requested_quantity">Requested Quantity *</label>
+                    <input
+                        type="number"
+                        id="requested_quantity"
+                        name="requested_quantity"
+                        min="1"
+                        step="1"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="request_date">Request Date *</label>
+                    <input
+                        type="date"
+                        id="request_date"
+                        name="request_date"
+                        value="{{ today_date or '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks">Remarks</label>
+                    <input
+                        type="text"
+                        id="remarks"
+                        name="remarks"
+                        maxlength="255"
+                        placeholder="Optional remarks"
+                    >
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Save Bag Request
+            </button>
+        </form>
+    </section>
+
+    <section class="report-section">
+        <h2>Recent Bag Requests</h2>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reference No.</th>
+                        <th>Date</th>
+                        <th>Plant</th>
+                        <th>Supervisor</th>
+                        <th>Brand</th>
+                        <th>Size</th>
+                        <th>Requested Qty</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in recent_requests %}
+                    <tr>
+                        <td>{{ item.reference_no }}</td>
+                        <td>{{ item.request_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ item.plant.name }}</td>
+                        <td>{{ item.supervisor.name }}</td>
+                        <td>{{ item.bag_type.name }}</td>
+                        <td>{{ item.bag_type.size_kg }} kg</td>
+                        <td>{{ "{:,}".format(item.requested_quantity) }}</td>
+                        <td>{{ item.status }}</td>
+                        <td>{{ item.remarks or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9">Abhi koi bag request record nahi hai.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const plantSelect = document.getElementById("plant_id");
+    const supervisorSelect = document.getElementById("supervisor_id");
+
+    const allSupervisors = Array.from(supervisorSelect.options).slice(1);
+
+    function filterSupervisors() {
+        const selectedPlant = plantSelect.value;
+        const previousSupervisor = supervisorSelect.value;
+
+        supervisorSelect.innerHTML = "";
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = selectedPlant
+            ? "Select Supervisor"
+            : "Pehle Plant Select Karein";
+
+        supervisorSelect.appendChild(placeholder);
+
+        allSupervisors.forEach(function (option) {
+            if (option.dataset.plant === selectedPlant) {
+                supervisorSelect.appendChild(option.cloneNode(true));
+            }
+        });
+
+        if (
+            previousSupervisor &&
+            Array.from(supervisorSelect.options).some(
+                option => option.value === previousSupervisor
+            )
+        ) {
+            supervisorSelect.value = previousSupervisor;
+        }
+    }
+
+    plantSelect.addEventListener("change", filterSupervisors);
+    filterSupervisors();
+});
+</script>

@@ -1,0 +1,64 @@
+
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+instance/
+uploads/
+logs/
+.pytest_cache/
+# Environment and secrets
+.env.*
+!.env.example
+
+# Python and test artifacts
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Local database and backups
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+*.bak
+
+# Editor and operating-system files
+.vscode/
+.DS_Store
+Thumbs.db
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Uploaded company documents and photos
+uploads/
+instance/
+
+# Python virtual environments and cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Logs and test artifacts
+logs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local database files and backups
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+
+# Editor and operating system files
+.vscode/
+.DS_Store
+Thumbs.db
